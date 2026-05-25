@@ -1,0 +1,25 @@
+# Core
+torch>=2.2
+numpy>=1.26
+
+# Data
+datasets>=2.18
+pandas>=2.2
+
+# Tokenization
+tokenizers>=0.15
+sentencepiece>=0.2
+
+# Evaluation
+textstat>=0.7          # Flesch-Kincaid and other readability metrics
+sacrebleu>=2.4         # BLEU / fidelity-style metrics
+
+# Visualization (attention maps, training curves)
+matplotlib>=3.8
+seaborn>=0.13
+
+# GUI
+streamlit>=1.33
+
+# Utilities
+tqdm>=4.66
