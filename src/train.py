@@ -42,6 +42,7 @@ def main(args):
         pad_id=PAD_ID,
     ).to(device)
     print(sum(p.numel() for p in model.parameters()) / 1e6, "M params")
+    print(len(loader), "batches per epoch")
 
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr)
     crit = nn.CrossEntropyLoss(ignore_index=PAD_ID)
@@ -52,7 +53,7 @@ def main(args):
         model.train()
         total = 0.0
         t0 = time.time()
-        for src, tgt in loader:
+        for i, (src, tgt) in enumerate(loader, 1):
             src, tgt = src.to(device), tgt.to(device)
             tgt_in = tgt[:, :-1]
             tgt_out = tgt[:, 1:]
@@ -66,11 +67,17 @@ def main(args):
             opt.step()
             total += loss.item()
 
+            if i % 20 == 0:
+                elapsed = time.time() - t0
+                rate = i / elapsed
+                print(f"  ep {epoch}  batch {i}/{len(loader)}  loss {loss.item():.3f}  ({rate:.1f} batch/s)", flush=True)
+
         avg = total / max(1, len(loader))
-        print(f"epoch {epoch}  loss {avg:.3f}  time {time.time() - t0:.1f}s")
+        print(f"epoch {epoch} done  avg loss {avg:.3f}  time {time.time() - t0:.1f}s", flush=True)
 
         ckpt = Path(args.ckpt_dir) / f"model_epoch{epoch}.pt"
         torch.save({"model_state": model.state_dict(), "epoch": epoch}, ckpt)
+        print(f"  saved {ckpt}", flush=True)
 
 
 if __name__ == "__main__":
